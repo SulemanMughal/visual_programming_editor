@@ -31,11 +31,11 @@ import IconX from "@/app/icons/IconX";
 function Sidebar() {
   const [query, setQuery] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [jsonData, setJsonData] = useState(null);
+  const [, setJsonData] = useState(null);
   const [files, setFiles] = useState<UploadedFile[]>([]);
-  const [selectedFileId, setSelectedFileId] = useState<number|null>(null);
+  const [, setSelectedFileId] = useState<number|null>(null);
   const [selectedFileData, setSelectedFileData] = useState<object|null>(null);
-  const [loadingFiles, setLoadingFiles] = useState(false);
+  const [, setLoadingFiles] = useState(false);
   const router = useRouter();
     const { isAuthenticated } = useAuth();
   
@@ -126,7 +126,6 @@ function Sidebar() {
 
         <SidebarSection title="Fields" defaultOpen>
           <div className="mt-2">
-            {/* <SidebarList items={FIELDS} filter={query} /> */}
             <FieldsTree data={selectedFileData} filter={query} />
           </div>
         </SidebarSection>

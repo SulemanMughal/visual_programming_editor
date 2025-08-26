@@ -23,3 +23,10 @@ export const getFileData = async (fileId: number) => {
 	const response = await http.get(`/files/${fileId}/`);
 	return response.data;
 };
+
+
+// Delete a file by id
+export const deleteFile = async (fileId: number) => {
+	const response = await http.delete(`/files/${fileId}/delete/`);
+	return response.data;
+};
