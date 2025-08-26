@@ -10,10 +10,14 @@ function SidebarList({
   items,
   filter,
   renderExtra,
+  showDeleteBtn
 }: {
-  items: { id: number; name: string; file?: string, content_type : string, file_size : number, created_at : string }[] | any[];
+  items: { id: number; name: string; file?: string, content_type : string, file_size : number, created_at : string }[] |  
+  { id: number, name: string, description: string , icon : React.ReactNode }
+  | any[];
   filter: string;
   renderExtra?: (item: { id: string; name: string; type?: string }) => React.ReactNode;
+  showDeleteBtn?: boolean;
 }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<any>(null);
@@ -59,18 +63,24 @@ function SidebarList({
         {filtered.map((item) => (
           <li key={item.id} className="group relative">
             <button
-              className="flex w-full items-center justify-between rounded-md border border-transparent px-2 py-1.5 text-left text-sm text-neutral-300 hover:border-neutral-800/70 hover:bg-neutral-900"
+              className="flex w-full items-center justify-start rounded-md border border-transparent px-2 py-1.5 text-left text-sm text-neutral-300 hover:border-neutral-800/70 hover:bg-neutral-900"
             >
+              {item.icon && <span className="mr-2">{item.icon}</span>}
               <span className="truncate">{item.name}</span>
               <span className="text-xs text-neutral-500 group-hover:text-neutral-400">{item.type ?? ""}</span>
             </button>
-            <button
+            {
+              showDeleteBtn && (
+                <button
               className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-700 hover:bg-red-800 hover:cursor-pointer text-white rounded-full p-1"
               title="Delete"
               onClick={() => handleDeleteClick(item)}
             >
               <IconDelete />
             </button>
+              )
+            }
+            
             {renderExtra?.(item)}
           </li>
         ))}

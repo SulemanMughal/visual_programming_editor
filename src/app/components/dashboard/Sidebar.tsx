@@ -22,11 +22,42 @@ import JsonFileUploader from "@/app/components/JsonFileUploader"
 
 import SidebarList from "./SidebarList"
 
+import IconAnd from "@/app/icons/IconAnd";
+import IconOr from "@/app/icons/IconOr";
+import IconNot from "@/app/icons/IconNot";
 import IconPlus from "@/app/icons/IconPlus";
 import IconInfo from "@/app/icons/IconInfo";
+import IconMinus from "@/app/icons/IconMinus";
+import IconMultiply from "@/app/icons/IconMultiply";
+import IconDivide from "@/app/icons/IconDivide";
+import IconEqual from "@/app/icons/IconEqual";
+import IconNotEqual from "@/app/icons/IconNotEqual";
+import IconGreaterThan from "@/app/icons/IconGreaterThan";
+import IconLessThan from "@/app/icons/IconLessThan";
 import IconEdit from "@/app/icons/IconEdit";
 import IconX from "@/app/icons/IconX";
 
+
+// Operator List
+const arithmeticOperatorList = [
+  { id: 1, name: "Add", description: "Adds two numbers" , icon : <IconPlus />},
+  { id: 2, name: "Subtract", description: "Subtracts one number from another" , icon : <IconMinus />},
+  { id: 3, name: "Multiply", description: "Multiplies two numbers" , icon : <IconMultiply />},
+  { id: 4, name: "Divide", description: "Divides one number by another" , icon : <IconDivide />},
+]
+
+const comparisonOperatorList = [
+  { id: 1, name: "Equal", description: "Checks if two values are equal" , icon : <IconEqual />},
+  { id: 2, name: "Not Equal", description: "Checks if two values are not equal" , icon : <IconNotEqual />},
+  { id: 3, name: "Greater Than", description: "Checks if one value is greater than another" , icon : <IconGreaterThan />},
+  { id: 4, name: "Less Than", description: "Checks if one value is less than another" , icon : <IconLessThan />},
+]
+
+const logicalOperatorList = [
+  { id: 1, name: "And", description: "Logical AND operator" , icon : <IconAnd />},
+  { id: 2, name: "Or", description: "Logical OR operator" , icon : <IconOr />},
+  { id: 3, name: "Not", description: "Logical NOT operator" , icon : <IconNot />},
+]
 
 function Sidebar() {
   const [query, setQuery] = useState("");
@@ -98,6 +129,27 @@ function Sidebar() {
       <div className="flex flex-col gap-4">
         <SidebarSearch value={query} onChange={setQuery} />
 
+        {/* Arithmetic Operators */}
+        <SidebarSection title="Arithmetic Operators" >
+          <div className="mt-2">
+            <SidebarList items={arithmeticOperatorList} filter={query} />
+          </div>
+        </SidebarSection>
+
+        {/* Comparison Operators */}
+        <SidebarSection title="Comparison Operators" >
+          <div className="mt-2">
+            <SidebarList items={comparisonOperatorList} filter={query} />
+          </div>
+        </SidebarSection>
+
+        {/* Logical Operators */}
+        <SidebarSection title="Logical Operators" >
+          <div className="mt-2">
+            <SidebarList items={logicalOperatorList} filter={query} />
+          </div>
+        </SidebarSection>
+
         <SidebarSection
           title="Datasets"
           actions={
@@ -118,17 +170,18 @@ function Sidebar() {
           }
         >
           <div className="mt-2">
-            <SidebarList items={files} filter={query} />
+            <SidebarList items={files} filter={query} showDeleteBtn={true} />
           </div>
         </SidebarSection>
 
         <div className="h-px w-full bg-neutral-800/70" />
 
-        <SidebarSection title="Fields" defaultOpen>
+        <SidebarSection title="Fields" >
           <div className="mt-2">
             <FieldsTree data={selectedFileData} filter={query} />
           </div>
         </SidebarSection>
+        
       </div>
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
         <h2 className="text-lg font-bold mb-4 text-white">Upload JSON File</h2>

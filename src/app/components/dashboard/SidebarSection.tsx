@@ -7,7 +7,7 @@ function SidebarSection({
   title,
   actions,
   children,
-  defaultOpen = true,
+  defaultOpen = false,
 }: {
   title: string;
   actions?: React.ReactNode;
