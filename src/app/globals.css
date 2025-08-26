@@ -53,3 +53,59 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-in-out forwards;
 }
+
+
+
+/* Base: make the element scrollable */
+.scrollarea {
+  overflow: auto;
+  /* prevents layout shift when bars appear (supported in modern browsers) */
+  scrollbar-gutter: stable;
+  
+  /* Firefox */
+  scrollbar-width: thin;                       /* auto | thin | none */
+  scrollbar-color: rgba(160,165,180,.55) transparent; /* thumb | track */
+}
+
+/* WebKit (Chrome, Edge, Safari) */
+.scrollarea::-webkit-scrollbar {
+  width: 10px;          /* vertical bar */
+  height: 10px;         /* horizontal bar */
+}
+
+.scrollarea::-webkit-scrollbar-track {
+  background: transparent;                     /* invisible track */
+}
+
+.scrollarea::-webkit-scrollbar-thumb {
+  background-color: rgba(160,165,180,.55);     /* thumb color */
+  border-radius: 999px;                        /* fully rounded */
+  border: 2px solid transparent;               /* creates a gap to the edge */
+  background-clip: content-box;                /* keep the gap visible */
+}
+
+/* Hover/active states */
+.scrollarea:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(160,165,180,.85);
+}
+.scrollarea::-webkit-scrollbar-thumb:active {
+  background-color: #8b5cf6;                   /* accent while dragging */
+}
+
+/* Optional: show almost nothing until hover (WebKit) */
+.scrollarea:not(:hover)::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+/* Dark mode tweak */
+@media (prefers-color-scheme: dark) {
+  .scrollarea {
+    scrollbar-color: rgba(180,185,200,.45) transparent;
+  }
+  .scrollarea::-webkit-scrollbar-thumb {
+    background-color: rgba(180,185,200,.45);
+  }
+  .scrollarea:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(180,185,200,.8);
+  }
+}
