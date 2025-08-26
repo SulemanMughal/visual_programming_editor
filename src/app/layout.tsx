@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import NextTopLoader from 'nextjs-toploader';
+import 'react-toastify/dist/ReactToastify.css';
+import ThemeProvider from '@/app/components/common/ThemeProvider';
+import Layout from '@/app/components/layout/Layout';
+import { AuthProvider } from '@/app/context/AuthContext';
+
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,12 +29,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  // const isAuthenticated = false; // Replace with your auth logic
+  // const handleLogout = () => {
+  //   console.log('Logged out');
+  // };
+
+
+  // return (
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <AuthProvider>
+          <ThemeProvider>
+            <Layout>
+              {/* Top Loading Bar */}
+              <NextTopLoader />
+              {children}
+            </Layout>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
