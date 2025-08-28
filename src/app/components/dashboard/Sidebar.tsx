@@ -22,42 +22,56 @@ import JsonFileUploader from "@/app/components/JsonFileUploader"
 
 import SidebarList from "./SidebarList"
 
-import IconAnd from "@/app/icons/IconAnd";
-import IconOr from "@/app/icons/IconOr";
-import IconNot from "@/app/icons/IconNot";
+// import IconAnd from "@/app/icons/IconAnd";
+// import IconOr from "@/app/icons/IconOr";
+// import IconNot from "@/app/icons/IconNot";
 import IconPlus from "@/app/icons/IconPlus";
 import IconInfo from "@/app/icons/IconInfo";
-import IconMinus from "@/app/icons/IconMinus";
-import IconMultiply from "@/app/icons/IconMultiply";
-import IconDivide from "@/app/icons/IconDivide";
-import IconEqual from "@/app/icons/IconEqual";
-import IconNotEqual from "@/app/icons/IconNotEqual";
-import IconGreaterThan from "@/app/icons/IconGreaterThan";
-import IconLessThan from "@/app/icons/IconLessThan";
+// import IconMinus from "@/app/icons/IconMinus";
+// import IconMultiply from "@/app/icons/IconMultiply";
+// import IconDivide from "@/app/icons/IconDivide";
+// import IconEqual from "@/app/icons/IconEqual";
+// import IconNotEqual from "@/app/icons/IconNotEqual";
+// import IconGreaterThan from "@/app/icons/IconGreaterThan";
+// import IconLessThan from "@/app/icons/IconLessThan";
 import IconEdit from "@/app/icons/IconEdit";
 import IconX from "@/app/icons/IconX";
 
+import {
+  OPS,
+  LOGICAL_OPERATORS,
+  CONTROL_OPERATORS,
+  LOOP_OPERATORS,
+  OTHER_OPERATORS,
+  LIST_OPERATORS
+} from "./constants"
+
+
+import PaletteItem from "./PaletteItem"
 
 // Operator List
-const arithmeticOperatorList = [
-  { id: 1, name: "Add", description: "Adds two numbers" , icon : <IconPlus />},
-  { id: 2, name: "Subtract", description: "Subtracts one number from another" , icon : <IconMinus />},
-  { id: 3, name: "Multiply", description: "Multiplies two numbers" , icon : <IconMultiply />},
-  { id: 4, name: "Divide", description: "Divides one number by another" , icon : <IconDivide />},
-]
+// const arithmeticOperatorList = [
+//   { id: 1, name: "Add", description: "Adds two numbers" , icon : <IconPlus />},
+//   { id: 2, name: "Subtract", description: "Subtracts one number from another" , icon : <IconMinus />},
+//   { id: 3, name: "Multiply", description: "Multiplies two numbers" , icon : <IconMultiply />},
+//   { id: 4, name: "Divide", description: "Divides one number by another" , icon : <IconDivide />},
+// ]
 
-const comparisonOperatorList = [
-  { id: 1, name: "Equal", description: "Checks if two values are equal" , icon : <IconEqual />},
-  { id: 2, name: "Not Equal", description: "Checks if two values are not equal" , icon : <IconNotEqual />},
-  { id: 3, name: "Greater Than", description: "Checks if one value is greater than another" , icon : <IconGreaterThan />},
-  { id: 4, name: "Less Than", description: "Checks if one value is less than another" , icon : <IconLessThan />},
-]
 
-const logicalOperatorList = [
-  { id: 1, name: "And", description: "Logical AND operator" , icon : <IconAnd />},
-  { id: 2, name: "Or", description: "Logical OR operator" , icon : <IconOr />},
-  { id: 3, name: "Not", description: "Logical NOT operator" , icon : <IconNot />},
-]
+
+
+// const comparisonOperatorList = [
+//   { id: 1, name: "Equal", description: "Checks if two values are equal" , icon : <IconEqual />},
+//   { id: 2, name: "Not Equal", description: "Checks if two values are not equal" , icon : <IconNotEqual />},
+//   { id: 3, name: "Greater Than", description: "Checks if one value is greater than another" , icon : <IconGreaterThan />},
+//   { id: 4, name: "Less Than", description: "Checks if one value is less than another" , icon : <IconLessThan />},
+// ]
+
+// const logicalOperatorList = [
+//   { id: 1, name: "And", description: "Logical AND operator" , icon : <IconAnd />},
+//   { id: 2, name: "Or", description: "Logical OR operator" , icon : <IconOr />},
+//   { id: 3, name: "Not", description: "Logical NOT operator" , icon : <IconNot />},
+// ]
 
 function Sidebar() {
   const [query, setQuery] = useState("");
@@ -95,7 +109,19 @@ function Sidebar() {
       } catch (err) {
         // console.error('Upload failed:', err);
         // notifyError('Failed to load file data.');
-        notifyError(err.response?.data?.message || 'Upload failed!');
+        interface UploadError {
+          response?: {
+            data?: {
+              message?: string;
+            };
+          };
+        }
+        const errorObj = err as UploadError;
+        notifyError(
+          typeof err === 'object' && err !== null && 'response' in err && errorObj.response?.data?.message
+            ? errorObj.response.data.message
+            : 'Upload failed!'
+        );
       } finally{
         setModalOpen(false);
       }
@@ -131,22 +157,74 @@ function Sidebar() {
 
         {/* Arithmetic Operators */}
         <SidebarSection title="Arithmetic Operators" >
-          <div className="mt-2">
-            <SidebarList items={arithmeticOperatorList} filter={query} />
+          <div className="mt-2 flex w-full items-center justify-start flex-wrap gap-2">
+            {Object.values(OPS).map((op) => (
+              <PaletteItem key={op.id} type="operator" label={op.label} payload={{ opId: op.id }} />
+            ))}
           </div>
         </SidebarSection>
 
         {/* Comparison Operators */}
         <SidebarSection title="Comparison Operators" >
-          <div className="mt-2">
-            <SidebarList items={comparisonOperatorList} filter={query} />
+          <div className="mt-2 flex w-full items-center justify-start flex-wrap gap-2">
+            {Object.values(LOGICAL_OPERATORS).map((op) => (
+              <PaletteItem key={op.id} type="operator" label={op.label} payload={{ opId: op.id }} />
+            ))}
           </div>
         </SidebarSection>
 
-        {/* Logical Operators */}
-        <SidebarSection title="Logical Operators" >
-          <div className="mt-2">
-            <SidebarList items={logicalOperatorList} filter={query} />
+        {/* Control Operators */}
+        <SidebarSection title="Control Operators" >
+          <div className="mt-2 flex w-full items-center justify-start flex-wrap gap-2">
+            {Object.values(CONTROL_OPERATORS).map((op) => (
+              <PaletteItem key={op.id} type="operator" label={op.label} payload={{ opId: op.id }} />
+            ))}
+          </div>
+        </SidebarSection>
+        
+        
+        {/* Loop Operators */}
+        <SidebarSection title="Loop Operators" >
+          <div className="mt-2 flex w-full items-center justify-start flex-wrap gap-2">
+            {Object.values(LOOP_OPERATORS).map((op) => (
+              <PaletteItem key={op.id} type="operator" label={op.label} payload={{ opId: op.id }} />
+            ))}
+          </div>
+        </SidebarSection>
+        
+        
+        {/* Other Operators */}
+        <SidebarSection title="Other Operators" >
+          <div className="mt-2 flex w-full items-center justify-start flex-wrap gap-2">
+            {Object.values(OTHER_OPERATORS).map((op) => (
+              <PaletteItem key={op.id} type="operator" label={op.label} payload={{ opId: op.id }} />
+            ))}
+          </div>
+        </SidebarSection>
+        
+        
+        {/* List Operators */}
+        <SidebarSection title="List Operators" >
+          <div className="mt-2 flex w-full items-center justify-start flex-wrap gap-2">
+            {Object.values(LIST_OPERATORS).map((op) => (
+              <PaletteItem key={op.id} type="operator" label={op.label} payload={{ opId: op.id }} />
+            ))}
+          </div>
+        </SidebarSection>
+
+
+        {/* Constants */}
+        <SidebarSection title="Constants" >
+          <div className="mt-2 flex w-full items-center justify-start flex-wrap gap-2">
+            {[{ label: "Number", dtype: "number", value: 0 }, { label: "String", dtype: "string", value: "" }, { label: "True", dtype: "boolean", value: true }, { label: "False", dtype: "boolean", value: false }].map((c) => (
+            <PaletteItem key={c.label} type="const" label={c.label} payload={c} />
+          ))}
+          </div>
+        </SidebarSection>
+
+        <SidebarSection title="Sinks" >
+          <div className="mt-2 flex w-full items-center justify-start flex-wrap gap-2">
+            <PaletteItem type="output" label="Output" payload={{ label: "Result" }} />
           </div>
         </SidebarSection>
 
@@ -181,6 +259,8 @@ function Sidebar() {
             <FieldsTree data={selectedFileData} filter={query} />
           </div>
         </SidebarSection>
+
+        
         
       </div>
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>

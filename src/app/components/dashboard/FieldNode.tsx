@@ -2,6 +2,7 @@
 import { useState } from "react";
 
 import { isObjectLike , hasDeepKeyMatch} from "./utils"
+import PaletteItem from "./PaletteItem"
 
 function FieldNode({ label, value, depth = 0, filter }: { label: string; value: any; depth?: number; filter: string }) {
   const nestedArray = Array.isArray(value) && value.some((x) => isObjectLike(x));
@@ -14,6 +15,8 @@ function FieldNode({ label, value, depth = 0, filter }: { label: string; value: 
   const [open, setOpen] = useState<boolean>(false);
 
   if (!visibleByFilter) return null;
+
+  // console.debug(label, " : ", value)
 
   return (
     <div className="text-sm">
@@ -34,7 +37,9 @@ function FieldNode({ label, value, depth = 0, filter }: { label: string; value: 
           ) : (
             <span className="inline-block h-5 w-5" />
           )}
-          <span className="text-neutral-300">{label}</span>
+          {/* <span className="text-neutral-300">{label}</span> */}
+          {/* <PaletteItem type="output" label="Output" payload={{ label: "Result" }} /> */}
+          <PaletteItem key={label} type="field" label={`Field: ${label}`} payload={{ path: label, dtype: "number" }} />
         </div>
         {/* <span className="text-xs text-neutral-500">{valueTypeLabel(value)}</span> */}
       </div>
