@@ -153,26 +153,51 @@ const CONTROL_OPERATORS = {
 //     eval: ({ cond, t, f }) => (cond ? t : f),
 //     toPy: ({ cond, t, f }) => `(${t} if ${cond} else ${f})`,
 //   },
+// if: {
+//   id: "if",
+//   label: "If",
+//   inputs: [
+//     { id: "cond", dtype: "boolean", label: "Cond" },
+//     // { id: "t", dtype: "any", label: "Then" },
+//     // { id: "f", dtype: "any", label: "Else" },
+//   ],
+//   output: [
+//     { id: "then", dtype: "any", label: "Then" },
+//     { id: "else", dtype: "any", label: "Else" },
+//   ],
+//   eval: ({ cond, t, f }) => ({
+//     then: cond ? t : undefined,
+//     else: !cond ? f : undefined,
+//   }),
+//   toPy: ({ cond, t, f }) => ({
+//     then: `(${t} if ${cond} else None)`,
+//     else: `(None if ${cond} else ${f})`,
+//   }),
+// }
+
 if: {
   id: "if",
   label: "If",
   inputs: [
     { id: "cond", dtype: "boolean", label: "Cond" },
-    // { id: "t", dtype: "any", label: "Then" },
-    // { id: "f", dtype: "any", label: "Else" },
+    { id: "t",    dtype: "any",     label: "Then" }, // value when true
+    { id: "f",    dtype: "any",     label: "Else" }, // value when false
   ],
-  output: [
-    { id: "then", dtype: "any", label: "Then" },
-    { id: "else", dtype: "any", label: "Else" },
-  ],
-  eval: ({ cond, t, f }) => ({
-    then: cond ? t : undefined,
-    else: !cond ? f : undefined,
-  }),
-  toPy: ({ cond, t, f }) => ({
-    then: `(${t} if ${cond} else None)`,
-    else: `(None if ${cond} else ${f})`,
-  }),
+  // output: [
+  //   { id: "then", dtype: "any", label: "Then" },
+  //   { id: "else", dtype: "any", label: "Else" },
+  // ],
+  output: { id: "out", dtype: "any" },
+   eval: ({ cond, t, f }) => (cond ? t : f),
+  toPy: ({ cond, t, f }) => `(${t} if ${cond} else ${f})`,
+  // eval: ({ cond, t, f }) => ({
+  //   then: cond ? t : undefined,
+  //   else: !cond ? f : undefined,
+  // }),
+  // toPy: ({ cond, t, f }) => ({
+  //   then: `(${t} if ${cond} else None)`,
+  //   else: `(None if ${cond} else ${f})`,
+  // }),
 }
 
 }

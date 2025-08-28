@@ -22,18 +22,8 @@ import JsonFileUploader from "@/app/components/JsonFileUploader"
 
 import SidebarList from "./SidebarList"
 
-// import IconAnd from "@/app/icons/IconAnd";
-// import IconOr from "@/app/icons/IconOr";
-// import IconNot from "@/app/icons/IconNot";
 import IconPlus from "@/app/icons/IconPlus";
 import IconInfo from "@/app/icons/IconInfo";
-// import IconMinus from "@/app/icons/IconMinus";
-// import IconMultiply from "@/app/icons/IconMultiply";
-// import IconDivide from "@/app/icons/IconDivide";
-// import IconEqual from "@/app/icons/IconEqual";
-// import IconNotEqual from "@/app/icons/IconNotEqual";
-// import IconGreaterThan from "@/app/icons/IconGreaterThan";
-// import IconLessThan from "@/app/icons/IconLessThan";
 import IconEdit from "@/app/icons/IconEdit";
 import IconX from "@/app/icons/IconX";
 
@@ -49,30 +39,6 @@ import {
 
 
 import PaletteItem from "./PaletteItem"
-
-// Operator List
-// const arithmeticOperatorList = [
-//   { id: 1, name: "Add", description: "Adds two numbers" , icon : <IconPlus />},
-//   { id: 2, name: "Subtract", description: "Subtracts one number from another" , icon : <IconMinus />},
-//   { id: 3, name: "Multiply", description: "Multiplies two numbers" , icon : <IconMultiply />},
-//   { id: 4, name: "Divide", description: "Divides one number by another" , icon : <IconDivide />},
-// ]
-
-
-
-
-// const comparisonOperatorList = [
-//   { id: 1, name: "Equal", description: "Checks if two values are equal" , icon : <IconEqual />},
-//   { id: 2, name: "Not Equal", description: "Checks if two values are not equal" , icon : <IconNotEqual />},
-//   { id: 3, name: "Greater Than", description: "Checks if one value is greater than another" , icon : <IconGreaterThan />},
-//   { id: 4, name: "Less Than", description: "Checks if one value is less than another" , icon : <IconLessThan />},
-// ]
-
-// const logicalOperatorList = [
-//   { id: 1, name: "And", description: "Logical AND operator" , icon : <IconAnd />},
-//   { id: 2, name: "Or", description: "Logical OR operator" , icon : <IconOr />},
-//   { id: 3, name: "Not", description: "Logical NOT operator" , icon : <IconNot />},
-// ]
 
 function Sidebar() {
   const [query, setQuery] = useState("");
@@ -152,7 +118,7 @@ function Sidebar() {
       }, []);
 
   return (
-    <aside className="h-full w-72 shrink-0 border-r border-neutral-800/70 bg-neutral-950 p-3">
+    <aside className="max-h-[calc(100vh-90px)] h-[calc(100vh-90px)] overflow-auto w-72 shrink-0 border-r border-neutral-800/70 bg-neutral-950 p-3">
       <div className="flex flex-col gap-4">
         <SidebarSearch value={query} onChange={setQuery} />
 

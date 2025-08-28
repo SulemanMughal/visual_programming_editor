@@ -43,7 +43,7 @@ function OperatorNode({ data }: { data: OperatorNodeData }) {
   return (
     <CardShell
       title="OPERATOR"
-      rightSlot={<div className="flex items-center gap-2">{pill(String(spec.output?.[0]?.dtype || spec.output.dtype).toUpperCase())}<InfoButton text={helpText} /></div>}
+      rightSlot={<div className="flex items-center gap-2">{pill(String(spec.output?.[0]?.dtype || spec?.output?.dtype).toUpperCase())}<InfoButton text={helpText} /></div>}
     >
       <div className="mt-1 text-lg font-semibold text-gray-800">{spec.label}</div>
       <div className="mt-3 space-y-3">

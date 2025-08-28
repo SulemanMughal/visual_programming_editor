@@ -202,7 +202,103 @@ interface Node {
 
 
 
-function generatePythonProgram(nodes: Node[], edges: Edge[]): string {
+// function generatePythonProgram(nodes: Node[], edges: Edge[]): string {
+//   const header = [
+//     "from datetime import date, datetime",
+//     "",
+//     "def get_nested(row, path):",
+//     "    cur = row",
+//     "    for key in path.split('.'):",
+//     "        if not isinstance(cur, dict):",
+//     "            return None",
+//     "        cur = cur.get(key)",
+//     "    return cur",
+//     "",
+//   ].join("\n");
+
+//   const { byTarget } = buildEdgeMaps(edges);
+//   const nodeMap = new Map<string, Node>(nodes.map((n) => [n.id, n]));
+//   const visiting = new Set<string>();
+//   const memoExpr = new Map<string, string>();
+
+
+  
+
+//   const exprOf = (nodeId: string): string => {
+//     if (memoExpr.has(nodeId)) return memoExpr.get(nodeId)!;
+//     if (visiting.has(nodeId)) return "None  # cycle";
+//     visiting.add(nodeId);
+//     const node = nodeMap.get(nodeId);
+//     if (!node) return "None";
+
+//     let expr = "None";
+//     switch (node.type) {
+//       case "field": {
+//         const d = node.data as NodeDataField;
+//         expr = `get_nested(row, ${pyQuote(d.path)})`;
+//         break;
+//       }
+//       case "const": {
+//         const d = node.data as NodeDataConst;
+//         expr = pyLiteral(d.dtype, d.value);
+//         break;
+//       }
+//       case "operator": {
+//         const d = node.data as NodeDataOperator;
+//         const spec = OPS[d.opId];
+//         if (!spec) {
+//           expr = "None";
+//           break;
+//         }
+//         const incoming = byTarget[node.id] || [];
+//         const argExpr: Record<string, string> = {};
+//         spec.inputs.forEach((inp) => {
+//           const edge = incoming.find((e) => e.targetHandle === inp.id);
+//           argExpr[inp.id] = edge ? exprOf(edge.source) : "None";
+//         });
+//         expr = spec.toPy ? spec.toPy(argExpr) : "None";
+//         break;
+//       }
+//       case "output": {
+//         const incoming = (byTarget[node.id] || [])[0];
+//         expr = incoming ? exprOf(incoming.source) : "None";
+//         break;
+//       }
+//       default:
+//         expr = "None";
+//     }
+//     visiting.delete(nodeId);
+//     memoExpr.set(nodeId, expr);
+//     return expr;
+//   };
+
+//   const outputs = nodes.filter((n) => n.type === "output");
+//   if (outputs.length === 0) {
+//     return (
+//       header +
+//       [
+//         "def compute(row):",
+//         "    # No outputs; add an Output node and connect it.",
+//         "    return {}",
+//         "",
+//       ].join("\n")
+//     );
+//   }
+
+//   const body = ["def compute(row):", "    return {"];
+//   outputs.forEach((n, i) => {
+//     const label = (n.data as NodeDataOutput).label || `result_${i + 1}`;
+//     body.push(`        ${pyQuote(label)}: ${exprOf(n.id)},`);
+//   });
+//   body.push("    }");
+//   return header + "\n" + body.join("\n") + "\n";
+// }
+
+
+// ---------- Graph helpers ----------
+
+// utils.ts (or wherever generatePythonProgram currently lives)
+export function generatePythonProgram(nodes: Node[], edges: Edge[]): string {
   const header = [
     "from datetime import date, datetime",
     "",
@@ -218,20 +314,27 @@ function generatePythonProgram(nodes: Node[], edges: Edge[]): string {
 
   const { byTarget } = buildEdgeMaps(edges);
   const nodeMap = new Map<string, Node>(nodes.map((n) => [n.id, n]));
+
+  // Memoize per (node, sourceHandle). Use "__" to mean "default" output.
+  const keyOf = (id: string, sh?: string | null) => `${id}::${sh ?? "__"}`;
   const visiting = new Set<string>();
-  const memoExpr = new Map<string, string>();
+  const memo = new Map<string, string>();
 
+  // ---- Resolve Python expr for a specific node output handle ----
+  const exprOf = (nodeId: string, sourceHandle?: string | null): string => {
+    const k = keyOf(nodeId, sourceHandle);
+    if (memo.has(k)) return memo.get(k)!;
+    if (visiting.has(k)) return "None  # cycle";
+    visiting.add(k);
 
-  
-
-  const exprOf = (nodeId: string): string => {
-    if (memoExpr.has(nodeId)) return memoExpr.get(nodeId)!;
-    if (visiting.has(nodeId)) return "None  # cycle";
-    visiting.add(nodeId);
     const node = nodeMap.get(nodeId);
-    if (!node) return "None";
+    if (!node) {
+      visiting.delete(k);
+      return "None";
+    }
 
     let expr = "None";
+
     switch (node.type) {
       case "field": {
         const d = node.data as NodeDataField;
@@ -246,32 +349,54 @@ function generatePythonProgram(nodes: Node[], edges: Edge[]): string {
       case "operator": {
         const d = node.data as NodeDataOperator;
         const spec = OPS[d.opId];
-        if (!spec) {
-          expr = "None";
-          break;
-        }
+        if (!spec) break;
+
+        // Build arg expressions by looking at incoming edges and their *source* handles.
         const incoming = byTarget[node.id] || [];
         const argExpr: Record<string, string> = {};
-        spec.inputs.forEach((inp) => {
+        (spec.inputs || []).forEach((inp) => {
           const edge = incoming.find((e) => e.targetHandle === inp.id);
-          argExpr[inp.id] = edge ? exprOf(edge.source) : "None";
+          // Note: recurse with the originating sourceHandle (for chained multi-outputs)
+          argExpr[inp.id] = edge ? exprOf(edge.source, edge.sourceHandle ?? null) : "None";
         });
-        expr = spec.toPy ? spec.toPy(argExpr) : "None";
+
+        const py = spec.toPy ? spec.toPy(argExpr) : undefined;
+
+        if (typeof py === "string") {
+          // Single-output operator
+          expr = py;
+        } else if (py && typeof py === "object") {
+          // Multi-output operator: pick the requested handle
+          // Prefer explicit sourceHandle, else first declared output as fallback
+          const want =
+            sourceHandle ||
+            (Array.isArray((spec as any).outputs) && (spec as any).outputs[0]?.id) ||
+            null;
+
+          expr = (want && (py as Record<string, string>)[want]) || "None";
+        } else {
+          expr = "None";
+        }
         break;
       }
       case "output": {
+        // The Output node has exactly one incoming edge; follow its source & handle.
         const incoming = (byTarget[node.id] || [])[0];
-        expr = incoming ? exprOf(incoming.source) : "None";
+        expr = incoming
+          ? exprOf(incoming.source, incoming.sourceHandle ?? null)
+          : "None";
         break;
       }
       default:
         expr = "None";
     }
-    visiting.delete(nodeId);
-    memoExpr.set(nodeId, expr);
+
+    visiting.delete(k);
+    memo.set(k, expr);
     return expr;
   };
 
+  // Collect Output nodes and build the compute() body
   const outputs = nodes.filter((n) => n.type === "output");
   if (outputs.length === 0) {
     return (
@@ -294,8 +419,6 @@ function generatePythonProgram(nodes: Node[], edges: Edge[]): string {
   return header + "\n" + body.join("\n") + "\n";
 }
 
-
-// ---------- Graph helpers ----------
 
 let __id = 1; 
 const genId = () => String(__id++);

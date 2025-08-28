@@ -11,7 +11,7 @@ import CanvasUI from "@/app/components/dashboard/nodes/CanvasUI"
 
 export default function Page() {
   return (
-    <div className="p-4 h-[100vh]">
+    <div className="p-4 max-h-[calc(100vh-64px)] h-[calc(100vh-64px)] overflow-hidden">
       <ReactFlowProvider>
         <CanvasUI />
       </ReactFlowProvider>

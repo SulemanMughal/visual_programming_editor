@@ -16,6 +16,8 @@ import {
 } from "@xyflow/react";
 import { Position } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import  { Highlight,  themes } from "prism-react-renderer";
+// import nightOwl from "prism-react-renderer/themes/nightOwl";
 
 import {
   generatePythonProgram,
@@ -199,7 +201,7 @@ function CanvasUI() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
   const [python, setPython] = useState("");
   const [showPython, setShowPython] = useState(true);
-  const [layoutDir, setLayoutDir] = useState<LayoutDir>("LR");
+  const [, setLayoutDir] = useState<LayoutDir>("LR");
 
   const nodeTypes = useMemo(() => ({ field: FieldNodeUI, const: ConstNode, operator: OperatorNode, output: OutputNode }), []);
   const defaultEdgeOptions = useMemo(() => ({
@@ -209,7 +211,10 @@ function CanvasUI() {
     pathOptions: { borderRadius: 10 },
   }), []);
 
-  useEffect(() => { setPython(generatePythonProgram(nodes, edges)); }, [nodes, edges]);
+  useEffect(() => { 
+    setPython(generatePythonProgram(nodes, edges));
+    console.debug(nodes, edges)
+   }, [nodes, edges]);
   useEffect(() => {
     const results = evaluate(nodes, edges, {});
     let changed = false;
@@ -295,7 +300,7 @@ function CanvasUI() {
   }, [edges, rf, setEdges, setNodes]);
 
   return (
-    <div className={`relative grid h-[85vh] ${showPython ? "grid-cols-[18rem_1fr_32rem]" : "grid-cols-[18rem_1fr]"} gap-3`}>
+    <div className={`relative grid  ${showPython ? "grid-cols-[18rem_1fr_32rem]" : "grid-cols-[18rem_1fr]"} gap-3`}>
       {/* Top-right quick actions */}
       <div className="pointer-events-auto absolute right-3 top-3 z-10 flex gap-2">
         <button
@@ -348,15 +353,39 @@ function CanvasUI() {
       {/* Python Panel */}
       {showPython && (
         <section className="flex min-h-0 shrink-0 flex-col overflow-hidden rounded-xl border-r border-neutral-800/70 bg-neutral-950">
-          <div className="flex items-center justify-between border-b p-2">
-            <div className="text-xs font-semibold text-white/80">Generated Python</div>
-            <div className="mt-12 flex items-center gap-2">
-              <button onClick={copyPython} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-xs font-semibold text-white shadow">Copy</button>
-              <button onClick={downloadPython} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-xs font-semibold text-white shadow">Download</button>
-            </div>
-          </div>
-          <textarea className="flex-1 resize-none bg-transparent p-3 font-mono text-[12px] leading-5 text-white" value={python} readOnly />
-        </section>
+<div className="flex items-center justify-between border-b p-2">
+<div className="text-xs font-semibold text-white/80">Generated Python</div>
+<div className="mt-12 flex items-center gap-2">
+<button onClick={copyPython} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-xs font-semibold text-white shadow">Copy</button>
+<button onClick={downloadPython} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-xs font-semibold text-white shadow">Download</button>
+</div>
+</div>
+<div className="flex-1 overflow-auto p-3">
+<Highlight  theme={themes.nightOwl} code={python} language="python">
+{({ className, style, tokens, getLineProps, getTokenProps }) => (
+<pre className={`${className} m-0 rounded-lg p-4 text-[12px] leading-5`} style={{ ...style, background: "transparent" }}>
+{tokens.map((line, i) => (
+<div key={i} {...getLineProps({ line })}>
+{line.map((token, key) => (
+<span key={key} {...getTokenProps({ token })} />
+))}
+</div>
+))}
+</pre>
+)}
+</Highlight>
+</div>
+</section>
+        // <section className="flex min-h-0 shrink-0 flex-col overflow-hidden rounded-xl border-r border-neutral-800/70 bg-neutral-950">
+        //   <div className="flex items-center justify-between border-b p-2">
+        //     <div className="text-xs font-semibold text-white/80">Generated Python</div>
+        //     <div className="mt-12 flex items-center gap-2">
+        //       <button onClick={copyPython} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-xs font-semibold text-white shadow">Copy</button>
+        //       <button onClick={downloadPython} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-xs font-semibold text-white shadow">Download</button>
+        //     </div>
+        //   </div>
+        //   <textarea className="flex-1 resize-none bg-transparent p-3 font-mono text-[12px] leading-5 text-white" value={python} readOnly />
+        // </section>
       )}
     </div>
   );

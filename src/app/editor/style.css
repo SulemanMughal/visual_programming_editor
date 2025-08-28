@@ -6,19 +6,20 @@
     color: black;
 }
 
-.react-flow__node-output{
-    background-color: transparent;
-}
 
 .react-flow__node{
     border : 2px solid transparent
 }
 
-.react-flow__node.selected  {
+.react-flow__node.selected {
     border: 2px #38bdf8 solid;
     border-radius: 30px;
   /* outline: 3px solid #38bdf8;         sky-400 */
   /* box-shadow: 0 10px 30px rgba(56, 189, 248, 0.35);
   transform: scale(1.01);
   transition: transform .15s ease, box-shadow .15s ease, outline-color .15s ease; */
+}
+
+.react-flow__node-output {
+    background-color: transparent;
 }
