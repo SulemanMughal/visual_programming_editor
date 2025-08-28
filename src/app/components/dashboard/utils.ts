@@ -6,6 +6,31 @@ import {
   ALL_OPERATORS
 } from "./constants"
 
+interface OperatorInput {
+  id: string;
+  dtype?: "number" | "boolean" | "date" | "string" | "list" | "any";
+}
+
+interface OperatorSpec {
+  inputs: OperatorInput[];
+  toPy?: (args: unknown) => string;
+  output?: {
+    dtype: "number" | "boolean" | "date" | "string" | "list" | "any";
+  };
+  // Optionally allow more specific signatures for toPy
+  // toPy?: (...args: any[]) => string;
+}
+
+interface OpsMap {
+  [opId: string]: OperatorSpec;
+}
+
+// You may need to import or define OPS elsewhere in your codebase
+// declare const OPS: OpsMap;
+const OPS: OpsMap = ALL_OPERATORS as Record<string, OperatorSpec>;
+
+// OPS = ALL_OPERATORS as Record<string, OperatorSpec>;
+
 function isObjectLike(v: unknown) {
   return (
     v !== null &&
@@ -175,25 +200,7 @@ interface Node {
   data: NodeDataField | NodeDataConst | NodeDataOperator | NodeDataOutput;
 }
 
-interface OperatorInput {
-  id: string;
-  dtype?: "number" | "boolean" | "date" | "string" | "list" | "any";
-}
 
-interface OperatorSpec {
-  inputs: OperatorInput[];
-  toPy?: (args: Record<string, string>) => string;
-  output?: {
-    dtype: "number" | "boolean" | "date" | "string" | "list" | "any";
-  };
-}
-
-interface OpsMap {
-  [opId: string]: OperatorSpec;
-}
-
-// You may need to import or define OPS elsewhere in your codebase
-declare const OPS: OpsMap;
 
 function generatePythonProgram(nodes: Node[], edges: Edge[]): string {
   const header = [
@@ -215,7 +222,7 @@ function generatePythonProgram(nodes: Node[], edges: Edge[]): string {
   const memoExpr = new Map<string, string>();
 
 
-  const OPS = ALL_OPERATORS;
+  
 
   const exprOf = (nodeId: string): string => {
     if (memoExpr.has(nodeId)) return memoExpr.get(nodeId)!;

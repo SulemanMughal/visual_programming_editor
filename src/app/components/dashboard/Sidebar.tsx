@@ -43,7 +43,8 @@ import {
   CONTROL_OPERATORS,
   LOOP_OPERATORS,
   OTHER_OPERATORS,
-  LIST_OPERATORS
+  LIST_OPERATORS,
+  BOOLEAN_OPERATORS
 } from "./constants"
 
 
@@ -177,6 +178,15 @@ function Sidebar() {
         <SidebarSection title="Control Operators" >
           <div className="mt-2 flex w-full items-center justify-start flex-wrap gap-2">
             {Object.values(CONTROL_OPERATORS).map((op) => (
+              <PaletteItem key={op.id} type="operator" label={op.label} payload={{ opId: op.id }} />
+            ))}
+          </div>
+        </SidebarSection>
+
+        {/* Boolean Operators */}
+        <SidebarSection title="Boolean Operators" >
+          <div className="mt-2 flex w-full items-center justify-start flex-wrap gap-2">
+            {Object.values(BOOLEAN_OPERATORS).map((op) => (
               <PaletteItem key={op.id} type="operator" label={op.label} payload={{ opId: op.id }} />
             ))}
           </div>

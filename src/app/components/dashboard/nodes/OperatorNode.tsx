@@ -43,7 +43,7 @@ function OperatorNode({ data }: { data: OperatorNodeData }) {
   return (
     <CardShell
       title="OPERATOR"
-      rightSlot={<div className="flex items-center gap-2">{pill(String(spec.output.dtype).toUpperCase())}<InfoButton text={helpText} /></div>}
+      rightSlot={<div className="flex items-center gap-2">{pill(String(spec.output?.[0]?.dtype || spec.output.dtype).toUpperCase())}<InfoButton text={helpText} /></div>}
     >
       <div className="mt-1 text-lg font-semibold text-gray-800">{spec.label}</div>
       <div className="mt-3 space-y-3">
@@ -55,7 +55,63 @@ function OperatorNode({ data }: { data: OperatorNodeData }) {
           </div>
         ))}
       </div>
-      <Handle type="source" position={Position.Right} id="out" style={{ ...handleDot, right: -8, top: "50%", transform: "translateY(-50%)" }} />
+
+
+      <div className="mt-3 space-y-3">
+        {Array.isArray(spec.output)
+          ? spec.output.map((out, idx) => (
+              <div key={out.id || idx} className="relative flex items-center justify-between rounded-2xl border bg-white px-4 py-3 shadow">
+                <div className="text-base font-medium text-gray-700">{out.label ?? out.id}</div>
+                {pill(String(out.dtype).toUpperCase())}
+                <Handle
+                  key={out.id || idx}
+                  type="source"
+                  position={Position.Right}
+                  id={out.id || `out${idx}`}
+                  style={{
+                    ...handleDot,
+                    right: -8,
+                    top: "50%",
+                    transform: "translateY(-50%)"
+                  }}
+                />
+              </div>
+            ))
+          : spec.output && typeof spec.output === "object"
+          ? (
+              <div key={spec.output.id} className="relative flex items-center justify-between rounded-2xl border bg-white px-4 py-3 shadow">
+                <div className="text-base font-medium text-gray-700">{spec.output.label ?? spec.output.id}</div>
+                {pill(String(spec.output.dtype).toUpperCase())}
+                <Handle
+                  key={spec.output.id}
+                  type="source"
+                  position={Position.Right}
+                  id={spec.output.id || "out"}
+                  style={{
+                    ...handleDot,
+                    right: -8,
+                    top: "50%",
+                    transform: "translateY(-50%)"
+                  }}
+                />
+              </div>
+            )
+          : null}
+      </div>
+      {/* {spec.output?.map((out, idx) => (
+        <Handle
+          key={out.id || idx}
+          type="source"
+          position={Position.Right}
+          id={out.id || `out${idx}`}
+          style={{
+            ...handleDot,
+            right: -8,
+            top: `${30 + idx * 36}px`,
+            transform: "translateY(-50%)"
+          }}
+        />
+      ))} */}
     </CardShell>
   );
 }

@@ -27,8 +27,9 @@ function ConstNode({ data }: { data: ConstNodeData }) {
       </div>
       <div className="mt-3">
         <input
-          className="w-full rounded-2xl border bg-white px-4 py-3 text-sm shadow-inner outline-none focus:ring"
+          className="w-full rounded-2xl border bg-white px-4 py-3 text-sm shadow-inner outline-none focus:ring text-black"
           value={String(local)}
+          type={data.dtype === "list" ? "text" : data.dtype}
           onChange={(e) => setLocal(e.target.value)}
           onBlur={() => {
             let parsed: string | number | boolean | unknown[] = local;

@@ -85,6 +85,50 @@ const LOGICAL_OPERATORS={
     eval: ({ a, b }) => Number(a ?? 0) > Number(b ?? 0),
     toPy: ({ a, b }) => `(${a} > ${b})`,
   },
+  ne: {
+    id: "ne",
+    label: "≠",
+    inputs: [
+      { id: "a", dtype: "any", label: "A" },
+      { id: "b", dtype: "any", label: "B" },
+    ],
+    output: { id: "out", dtype: "boolean" },
+    eval: ({ a, b }) => a !== b,
+    toPy: ({ a, b }) => `(${a} != ${b})`,
+  },
+  lt: {
+    id: "lt",
+    label: "<",
+    inputs: [
+      { id: "a", dtype: "number", label: "A" },
+      { id: "b", dtype: "number", label: "B" },
+    ],
+    output: { id: "out", dtype: "boolean" },
+    eval: ({ a, b }) => Number(a ?? 0) < Number(b ?? 0),
+    toPy: ({ a, b }) => `(${a} < ${b})`,
+  },
+  lte: {
+    id: "lte",
+    label: "≤",
+    inputs: [
+      { id: "a", dtype: "number", label: "A" },
+      { id: "b", dtype: "number", label: "B" },
+    ],
+    output: { id: "out", dtype: "boolean" },
+    eval: ({ a, b }) => Number(a ?? 0) <= Number(b ?? 0),
+    toPy: ({ a, b }) => `(${a} <= ${b})`,
+  },
+  gte: {
+    id: "gte",
+    label: "≥",
+    inputs: [
+      { id: "a", dtype: "number", label: "A" },
+      { id: "b", dtype: "number", label: "B" },
+    ],
+    output: { id: "out", dtype: "boolean" },
+    eval: ({ a, b }) => Number(a ?? 0) >= Number(b ?? 0),
+    toPy: ({ a, b }) => `(${a} >= ${b})`,
+  },
   
   // Loop/List ops
   
@@ -93,18 +137,44 @@ const LOGICAL_OPERATORS={
 }
 
 const CONTROL_OPERATORS = {
+// if: {
+//     id: "if",
+//     label: "If",
+//     inputs: [
+//       { id: "cond", dtype: "boolean", label: "Cond" },
+//       { id: "t", dtype: "any", label: "Then" },
+//       { id: "f", dtype: "any", label: "Else" },
+//     ],
+//     output: { id: "out", dtype: "any" },
+//     // output: [
+//     //   { id: "t", dtype: "any", label: "Then" },
+//     //   { id: "f", dtype: "any", label: "Else" },
+//     // ],
+//     eval: ({ cond, t, f }) => (cond ? t : f),
+//     toPy: ({ cond, t, f }) => `(${t} if ${cond} else ${f})`,
+//   },
 if: {
-    id: "if",
-    label: "If",
-    inputs: [
-      { id: "cond", dtype: "boolean", label: "Cond" },
-      { id: "t", dtype: "any", label: "Then" },
-      { id: "f", dtype: "any", label: "Else" },
-    ],
-    output: { id: "out", dtype: "any" },
-    eval: ({ cond, t, f }) => (cond ? t : f),
-    toPy: ({ cond, t, f }) => `(${t} if ${cond} else ${f})`,
-  },
+  id: "if",
+  label: "If",
+  inputs: [
+    { id: "cond", dtype: "boolean", label: "Cond" },
+    // { id: "t", dtype: "any", label: "Then" },
+    // { id: "f", dtype: "any", label: "Else" },
+  ],
+  output: [
+    { id: "then", dtype: "any", label: "Then" },
+    { id: "else", dtype: "any", label: "Else" },
+  ],
+  eval: ({ cond, t, f }) => ({
+    then: cond ? t : undefined,
+    else: !cond ? f : undefined,
+  }),
+  toPy: ({ cond, t, f }) => ({
+    then: `(${t} if ${cond} else None)`,
+    else: `(None if ${cond} else ${f})`,
+  }),
+}
+
 }
 
 const LOOP_OPERATORS = {
@@ -129,6 +199,61 @@ range: {
   },
 }
 
+
+const BOOLEAN_OPERATORS = {
+  and: {
+    id: "and",
+    label: "AND",
+    inputs: [
+      { id: "a", dtype: "boolean", label: "A" },
+      { id: "b", dtype: "boolean", label: "B" },
+    ],
+    output: { id: "out", dtype: "boolean" },
+    eval: ({ a, b }) => Boolean(a) && Boolean(b),
+    toPy: ({ a, b }) => `(${a} and ${b})`,
+  },
+  or: {
+    id: "or",
+    label: "OR",
+    inputs: [
+      { id: "a", dtype: "boolean", label: "A" },
+      { id: "b", dtype: "boolean", label: "B" },
+    ],
+    output: { id: "out", dtype: "boolean" },
+    eval: ({ a, b }) => Boolean(a) || Boolean(b),
+    toPy: ({ a, b }) => `(${a} or ${b})`,
+  },
+  not: {
+    id: "not",
+    label: "NOT",
+    inputs: [ { id: "a", dtype: "boolean", label: "A" } ],
+    output: { id: "out", dtype: "boolean" },
+    eval: ({ a }) => !Boolean(a),
+    toPy: ({ a }) => `(not ${a})`,
+  },
+  // xor: {
+  //   id: "xor",
+  //   label: "XOR",
+  //   inputs: [
+  //     { id: "a", dtype: "boolean", label: "A" },
+  //     { id: "b", dtype: "boolean", label: "B" },
+  //   ],
+  //   output: { id: "out", dtype: "boolean" },
+  //   eval: ({ a, b }) => Boolean(a) !== Boolean(b),
+  //   toPy: ({ a, b }) => `(bool(${a}) ^ bool(${b}))`,
+  // },
+  // coalesce: {
+  //   id: "coalesce",
+  //   label: "Coalesce",
+  //   inputs: [
+  //     { id: "a", dtype: "any", label: "A" },
+  //     { id: "b", dtype: "any", label: "B" },
+  //   ],
+  //   output: { id: "out", dtype: "any" },
+  //   eval: ({ a, b }) => (a !== undefined && a !== null ? a : b),
+  //   toPy: ({ a, b }) => `(${a} if ${a} is not None else ${b})`,
+  // },
+}
 
 const OTHER_OPERATORS = {
 length: {
@@ -175,14 +300,7 @@ sum_list: {
 }
 
 
-const ALL_OPERATORS = {
-  ...OPS,
-  ...LOGICAL_OPERATORS,
-  ...CONTROL_OPERATORS,
-  ...LOOP_OPERATORS,
-  ...OTHER_OPERATORS,
-  ...LIST_OPERATORS
-}
+
 
 // Help text per operator (for the info popover)
 const OP_HELP = {
@@ -212,6 +330,19 @@ const handleDot = {
 };
 
 
+
+// Handler all operators
+const ALL_OPERATORS = {
+  ...OPS,
+  ...LOGICAL_OPERATORS,
+  ...CONTROL_OPERATORS,
+  ...LOOP_OPERATORS,
+  ...OTHER_OPERATORS,
+  ...LIST_OPERATORS,
+  ...BOOLEAN_OPERATORS
+}
+
+
 export {
   OPS,
   LOGICAL_OPERATORS,
@@ -219,6 +350,7 @@ export {
   LOOP_OPERATORS,
   OTHER_OPERATORS,
   LIST_OPERATORS,
+  BOOLEAN_OPERATORS,
   ALL_OPERATORS,
   OP_HELP,
   handleDot
