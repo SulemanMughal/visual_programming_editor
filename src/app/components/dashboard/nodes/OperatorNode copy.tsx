@@ -13,22 +13,17 @@ import {
 import pill from "@/app/components/dashboard/pill";
 import { handleDot } from "@/app/components/dashboard/constants";
 
-import { FaPlus, FaTrash } from "react-icons/fa";
-import { FaCopy } from "react-icons/fa6";
+import { FaCopy } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 
-import { OP_HELP, ALL_OPERATORS } from "../constants";
-
-import type { WhileExprRow, WhileExprRole } from "../utils";
-
-type WhileExtra = {
-  /** dynamic list of expression handle ids: ["expr_abcd", ...] */
-  exprs?: string[];
-};
+import {
+  OP_HELP,
+  ALL_OPERATORS
+} from "../constants";
 
 type OperatorNodeData = {
   opId: keyof typeof ALL_OPERATORS;
-} & WhileExtra;
+};
 
 function OperatorNode({ id, data, selected }: NodeProps<OperatorNodeData>) {
   const rf = useReactFlow();
@@ -38,20 +33,12 @@ function OperatorNode({ id, data, selected }: NodeProps<OperatorNodeData>) {
     return (
       <div className="relative min-w-[320px] rounded-[24px] border border-rose-300 bg-rose-50 p-4 shadow">
         <div className="text-xs font-extrabold tracking-[0.2em] text-rose-600">OPERATOR</div>
-        <div className="mt-1 text-base font-semibold text-rose-700">
-          Unknown operator: {String(data.opId)}
-        </div>
-        <div className="text-xs text-rose-600/80">
-          Delete this node and drag a valid one from the palette.
-        </div>
+        <div className="mt-1 text-base font-semibold text-rose-700">Unknown operator: {String(data.opId)}</div>
+        <div className="text-xs text-rose-600/80">Delete this node and drag a valid one from the palette.</div>
       </div>
     );
   }
 
-  const helpText =
-    OP_HELP[spec.id as keyof typeof OP_HELP] || "No help description available.";
-
-  // --- Duplicate/Delete (optional hover actions) ---
   const onDuplicate = React.useCallback(() => {
     const src = rf.getNode(id);
     if (!src) return;
@@ -76,60 +63,13 @@ function OperatorNode({ id, data, selected }: NodeProps<OperatorNodeData>) {
     rf.setNodes((nds) => nds.filter((n) => n.id !== id));
   }, [rf, id]);
 
-  // ---- While: dynamic expressions -------------------------------------------------
-  const isWhile = spec.id === "while_loop" || spec.label?.toLowerCase() === "while";
+  const helpText = OP_HELP[spec.id as keyof typeof OP_HELP] || "No help description available.";
 
-  const exprs = React.useMemo<string[]>(
-    () => (isWhile ? data.exprs ?? [] : []),
-    [isWhile, data.exprs]
-  );
-
-  const addExpr = React.useCallback(() => {
-    if (!isWhile) return;
-    const newId = `expr_${Math.random().toString(36).slice(-6)}`;
-    rf.setNodes((nds) =>
-      nds.map((n) =>
-        n.id === id
-          ? {
-              ...n,
-              data: {
-                ...(n.data as OperatorNodeData),
-                exprs: [...(exprs ?? []), newId],
-              },
-            }
-          : n
-      )
-    );
-  }, [rf, id, exprs, isWhile]);
-
-  const removeExpr = React.useCallback(
-    (exprId: string) => {
-      if (!isWhile) return;
-      // remove incoming edges to that handle, then remove handle id
-      rf.setEdges((eds) =>
-        eds.filter((e) => !(e.target === id && e.targetHandle === exprId))
-      );
-      rf.setNodes((nds) =>
-        nds.map((n) =>
-          n.id === id
-            ? {
-                ...n,
-                data: {
-                  ...(n.data as OperatorNodeData),
-                  exprs: (exprs ?? []).filter((x) => x !== exprId),
-                },
-              }
-            : n
-        )
-      );
-    },
-    [rf, id, exprs, isWhile]
-  );
-
-  // dtype pill in header
-  const headerDType = Array.isArray((spec as any).output)
-    ? (spec as any).output[0]?.dtype
-    : (spec as any).output?.dtype;
+  // Compute dtype badge for the header (supports array or single output spec)
+  const headerDType =
+    Array.isArray((spec as any).output)
+      ? (spec as any).output[0]?.dtype
+      : (spec as any).output?.dtype;
 
   return (
     <div className="relative group">
@@ -170,6 +110,8 @@ function OperatorNode({ id, data, selected }: NodeProps<OperatorNodeData>) {
             <InfoButton text={helpText} />
           </div>
         }
+        // Optional: visual highlight when selected (if CardShell supports className)
+        // className={selected ? "ring-2 ring-sky-400 shadow-xl" : ""}
       >
         <div className="mt-1 text-lg font-semibold text-gray-800">{spec.label}</div>
 
@@ -190,52 +132,9 @@ function OperatorNode({ id, data, selected }: NodeProps<OperatorNodeData>) {
               />
             </div>
           ))}
-
-          {/* While-only: dynamic expressions list */}
-          {isWhile && (
-            <>
-              {exprs.map((exprId, idx) => (
-                <div
-                  key={exprId}
-                  className="relative flex items-center justify-between rounded-2xl border bg-white px-4 py-3 shadow"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-base font-medium text-gray-700">
-                      Expression {idx + 1}
-                    </span>
-                    <button
-                      className="nodrag nowheel ml-1 inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700 ring-1 ring-rose-200 hover:bg-rose-100"
-                      title="Remove expression"
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onClick={() => removeExpr(exprId)}
-                    >
-                      <FaTrash /> Remove
-                    </button>
-                  </div>
-                  {pill("ANY")}
-                  <Handle
-                    type="target"
-                    position={Position.Left}
-                    id={exprId}
-                    style={{ ...handleDot, left: -8, top: "50%", transform: "translateY(-50%)" }}
-                  />
-                </div>
-              ))}
-
-              <div className="mt-2">
-                <button
-                  className="nodrag nowheel inline-flex items-center gap-2 rounded-xl bg-sky-600 px-3 py-2 text-xs font-semibold text-white shadow hover:bg-sky-700"
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onClick={addExpr}
-                >
-                  <FaPlus /> Add expression
-                </button>
-              </div>
-            </>
-          )}
         </div>
 
-        {/* Outputs (same as before) */}
+        {/* Outputs (supports array or single) */}
         <div className="mt-3 space-y-3">
           {Array.isArray((spec as any).output) ? (
             (spec as any).output.map((out: any, idx: number) => (
@@ -243,9 +142,7 @@ function OperatorNode({ id, data, selected }: NodeProps<OperatorNodeData>) {
                 key={out.id || idx}
                 className="relative flex items-center justify-between rounded-2xl border bg-white px-4 py-3 shadow"
               >
-                <div className="text-base font-medium text-gray-700">
-                  {out.label ?? out.id}
-                </div>
+                <div className="text-base font-medium text-gray-700">{out.label ?? out.id}</div>
                 {pill(String(out.dtype).toUpperCase())}
                 <Handle
                   type="source"

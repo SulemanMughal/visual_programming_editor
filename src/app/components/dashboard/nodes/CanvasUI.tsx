@@ -17,6 +17,10 @@ import {
 import { Position } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import  { Highlight,  themes } from "prism-react-renderer";
+
+
+
+
 // import nightOwl from "prism-react-renderer/themes/nightOwl";
 
 import {
@@ -41,6 +45,67 @@ import Sidebar from "@/app/components/dashboard/Sidebar";
  */
 
 type LayoutDir = "LR" | "TB"; // LR = left→right (horizontal), TB = top→bottom (vertical)
+
+// const deepClone = <T,>(x: T): T => JSON.parse(JSON.stringify(x));
+
+// const duplicateNodes = React.useCallback(
+//   (nodeId?: string, withEdges = true, offset = 40) => {
+//     const allNodes = rf.getNodes();
+//     const allEdges = rf.getEdges();
+
+//     // nodes to copy: explicit id OR current selection
+//     const toCopy = new Set<string>(
+//       nodeId ? [nodeId] : allNodes.filter((n) => n.selected).map((n) => n.id)
+//     );
+//     if (toCopy.size === 0) return;
+
+//     const idMap = new Map<string, string>();
+
+//     const nodeClones = [...toCopy].map((id) => {
+//       const src = allNodes.find((n) => n.id === id)!;
+//       const newId = `${src.id}-${Math.random().toString(36).slice(-4)}`;
+//       idMap.set(src.id, newId);
+
+//       return {
+//         ...deepClone(src),
+//         id: newId,
+//         selected: false,
+//         dragging: false,
+//         position: {
+//           x: (src.position?.x ?? 0) + offset,
+//           y: (src.position?.y ?? 0) + offset,
+//         },
+//         // keep orientations as-is (you already set them per layout elsewhere)
+//         sourcePosition: src.sourcePosition,
+//         targetPosition: src.targetPosition,
+//       };
+//     });
+
+//     let edgeClones: Edge[] = [];
+//     if (withEdges) {
+//       edgeClones = allEdges
+//         .filter((e) => toCopy.has(e.source) && toCopy.has(e.target))
+//         .map((e) => ({
+//           ...deepClone(e),
+//           id: `${e.id}-${Math.random().toString(36).slice(-4)}`,
+//           source: idMap.get(e.source)!,
+//           target: idMap.get(e.target)!,
+//           selected: false,
+//         }));
+//     }
+
+//     rf.addNodes(nodeClones as any);
+//     if (edgeClones.length) rf.addEdges(edgeClones);
+
+//     // select the new clones
+//     rf.setNodes((nds) =>
+//       nds.map((n) =>
+//         idMap.has(n.id) ? { ...n, selected: true } : { ...n, selected: false }
+//       )
+//     );
+//   },
+//   [rf]
+// );
 
 const dirToPositions = (dir: LayoutDir) => ({
   source: dir === "LR" ? Position.Right : Position.Bottom,
@@ -197,6 +262,8 @@ export function layoutPositions(nodes: Node[], edges: Edge[], dir: LayoutDir = "
 
 function CanvasUI() {
   const rf = useReactFlow();
+  // const [ctx, setCtx] = useState<null | {x:number;y:number;nodeId:string}>(null);
+
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
   const [python, setPython] = useState("");
@@ -343,6 +410,7 @@ function CanvasUI() {
           nodeTypes={nodeTypes}
           fitView
           defaultEdgeOptions={defaultEdgeOptions}
+          
         >
           <Background gap={20} size={1} />
           <MiniMap />
@@ -352,7 +420,7 @@ function CanvasUI() {
 
       {/* Python Panel */}
       {showPython && (
-        <section className="flex min-h-0 shrink-0 flex-col overflow-hidden rounded-xl border-r border-neutral-800/70 bg-neutral-950">
+        <section className="flex min-h-0 shrink-0 flex-col overflow-auto rounded-xl border-r border-neutral-800/70 bg-neutral-950">
 <div className="flex items-center justify-between border-b p-2">
 <div className="text-xs font-semibold text-white/80">Generated Python</div>
 <div className="mt-12 flex items-center gap-2">
@@ -360,7 +428,7 @@ function CanvasUI() {
 <button onClick={downloadPython} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-xs font-semibold text-white shadow">Download</button>
 </div>
 </div>
-<div className="flex-1 overflow-auto p-3">
+<div className="max-h-[calc(100vh-200px)] h-[calc(100vh-200px)] overflow-auto shrink-0 border-r border-neutral-800/70 bg-neutral-950 p-3">
 <Highlight  theme={themes.nightOwl} code={python} language="python">
 {({ className, style, tokens, getLineProps, getTokenProps }) => (
 <pre className={`${className} m-0 rounded-lg p-4 text-[12px] leading-5`} style={{ ...style, background: "transparent" }}>
@@ -376,19 +444,21 @@ function CanvasUI() {
 </Highlight>
 </div>
 </section>
-        // <section className="flex min-h-0 shrink-0 flex-col overflow-hidden rounded-xl border-r border-neutral-800/70 bg-neutral-950">
-        //   <div className="flex items-center justify-between border-b p-2">
-        //     <div className="text-xs font-semibold text-white/80">Generated Python</div>
-        //     <div className="mt-12 flex items-center gap-2">
-        //       <button onClick={copyPython} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-xs font-semibold text-white shadow">Copy</button>
-        //       <button onClick={downloadPython} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-xs font-semibold text-white shadow">Download</button>
-        //     </div>
-        //   </div>
-        //   <textarea className="flex-1 resize-none bg-transparent p-3 font-mono text-[12px] leading-5 text-white" value={python} readOnly />
-        // </section>
       )}
     </div>
   );
 }
 
 export default CanvasUI;
+
+
+
+// n = 0
+// while True:
+//     n += 1
+//     if n == 5:
+//         continue            # skip printing 5
+//     label = "even" if n % 2 == 0 else "odd"  # "A if cond else B" expression
+//     print(f"{n} is {label}")
+//     if n >= 10:
+//         break 

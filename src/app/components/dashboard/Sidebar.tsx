@@ -34,7 +34,8 @@ import {
   LOOP_OPERATORS,
   OTHER_OPERATORS,
   LIST_OPERATORS,
-  BOOLEAN_OPERATORS
+  BOOLEAN_OPERATORS,
+  ASSIGNMENT_OPERATORS
 } from "./constants"
 
 
@@ -122,6 +123,16 @@ function Sidebar() {
       <div className="flex flex-col gap-4">
         <SidebarSearch value={query} onChange={setQuery} />
 
+        {/* Assignment Operators */}
+        <SidebarSection title="Assignment Operators" >
+          <div className="mt-2 flex w-full items-center justify-start flex-wrap gap-2">
+            {Object.values(ASSIGNMENT_OPERATORS).map((op) => (
+              <PaletteItem key={op.id} type="operator" label={op.label} payload={{ opId: op.id }} />
+            ))}
+          </div>
+        </SidebarSection>
+        
+        
         {/* Arithmetic Operators */}
         <SidebarSection title="Arithmetic Operators" >
           <div className="mt-2 flex w-full items-center justify-start flex-wrap gap-2">
